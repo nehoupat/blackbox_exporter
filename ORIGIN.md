@@ -6,6 +6,12 @@ Fork of [prometheus/blackbox_exporter](https://github.com/prometheus/blackbox_ex
 * Image `ghcr.io/nehoupat/blackbox_exporter:<tag>` (amd64 and arm64) is built by the `origin.yml` workflow from a tag `vX.Y.Z-origin.N`, where `vX.Y.Z` is the upstream version.
 * Upstream workflows are disabled in this repository (`gh workflow disable`), a `v*` tag would otherwise trigger their release.
 
+## What the fork adds
+
+The code is in package `origin/`, upstream code only gets its wiring in `main.go`.
+
+* **Cache busting:** `/probe?...&cache_buster=_cb` adds `_cb=<16 hex characters>` to the target URL, a new value on every probe. The rest of the URL stays as it is. The name may contain only `A-Za-z0-9_.-`, otherwise the probe returns 400.
+
 ## New upstream version
 
 ```sh

@@ -43,6 +43,7 @@ import (
 	"go.yaml.in/yaml/v3"
 
 	"github.com/prometheus/blackbox_exporter/config"
+	"github.com/prometheus/blackbox_exporter/origin"
 	"github.com/prometheus/blackbox_exporter/prober"
 )
 
@@ -204,12 +205,12 @@ func run() int {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Healthy"))
 	})
-	http.HandleFunc(path.Join(*routePrefix, "/probe"), func(w http.ResponseWriter, r *http.Request) {
+	http.Handle(path.Join(*routePrefix, "/probe"), origin.CacheBuster(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sc.Lock()
 		conf := sc.C
 		sc.Unlock()
 		prober.Handler(w, r, conf, logger, rh, *timeoutOffset, nil, moduleUnknownCounter, scrapeLoggerConfig)
-	})
+	})))
 	http.HandleFunc(*routePrefix, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`<html>
